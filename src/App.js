@@ -2,31 +2,67 @@ import React from "react";
 import { createUseStyles } from "react-jss";
 
 const useStyles = createUseStyles({
-  myButton: {
-    color: "green",
-    margin: {
-      // jss-plugin-expand gives more readable syntax
-      top: 5, // jss-plugin-default-unit makes this 5px
-      right: 0,
-      bottom: 0,
-      left: "1rem",
+  simple: {
+    backgroundColor: "red",
+  },
+
+  props1: (props) => ({
+    backgroundColor: props.backgroundColor,
+  }),
+
+  props2: {
+    backgroundColor: (props) => props.backgroundColor,
+  },
+
+  list: {
+    ["& :nth-child(1)"]: {
+      backgroundColor: "green",
     },
-    "& span": {
-      // jss-plugin-nested applies this to a child span
-      fontWeight: "bold", // jss-plugin-camel-case turns this into 'font-weight'
+
+    // NOTE: This won't work
+    [`${(props) => props.selector}`]: {
+      backgroundColor: "blue",
     },
   },
-  myLabel: {
-    fontStyle: "italic",
-  },
+
+  list2: (props) => ({
+    ["& :nth-child(1)"]: {
+      backgroundColor: "green",
+    },
+
+    // NOTE: This works
+    [`${props.selector}`]: {
+      backgroundColor: "blue",
+    },
+  }),
 });
 
 const App = () => {
-  const classes = useStyles();
+  const props = {
+    backgroundColor: "yellow",
+    selector: "& :nth-child(2)",
+  };
+
+  const { simple, props1, props2, list, list2 } = useStyles(props);
+
   return (
-    <button className={classes.myButton}>
-      <span className={classes.myLabel}>xxx</span>
-    </button>
+    <>
+      <div className={simple}>Backgroud is red</div>
+      <div className={props1}>Backgroud is yellow. Set by props.</div>
+      <div className={props1}>
+        Backgroud is yellow. Set by props, using the simple syntax.
+      </div>
+      <ul className={list}>
+        <li>& :nth-child(1) should be green</li>
+        <li>& :nth-child(2) should be blue</li>
+        <li>1</li>
+      </ul>
+      <ul className={list2}>
+        <li>& :nth-child(1) should be green</li>
+        <li>& :nth-child(2) should be blue</li>
+        <li>1</li>
+      </ul>
+    </>
   );
 };
 
